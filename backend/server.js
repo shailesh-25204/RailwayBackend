@@ -9,6 +9,7 @@ const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
 const { log } = require('console');
+const train = require('./models/train');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,6 +18,7 @@ const MONGODB_URI = 'mongodb://localhost:27017/train-details'
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 // .then(getAllTrains())
 const db = mongoose.connection
+const trains = db.collection('trains')
 db.once('open', () => console.log('Connected to Database'))
 
 // const newTrain = new Train({
@@ -72,11 +74,21 @@ app.post("/trains", upload.single("file"), (req, res) => {
         .on("data", (data) => {
             results.push(data)
             let trainData = results[results.length - 1]
-            console.log(trainData);
-            // trainData.forEach(trainObj => {
-            //     let stops = trainObj.stops;
-            //     console.log(stops);
-            // });
+            // console.log(typeof (trainData));
+            // console.log(trainData);
+            let trainName = trainData.trainName
+            let trainNumber = trainData.trainNumber
+            let journeyDate = trainData.journeyDate
+            let journeyTime = trainData.journeyTime
+            let acCoaches = trainData.acCoaches
+            let sleeperCoaches = trainData.sleeperCoaches
+            let source = trainData.source
+            let destination = trainData.destination
+            let tempStops = trainData.stops
+
+            let newTrain = new Train({ trainName: trainName, trainNumber: trainNumber, journeyDate: journeyDate, journeyTime, journeyTime: journeyTime, acCoaches: acCoaches, sleeperCoaches: sleeperCoaches, source: source, destination: destination, stops: tempStops })
+            trains.insertOne(newTrain)
+            // console.log(tempStops);
 
             // console.log(results);
         })
