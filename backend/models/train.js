@@ -6,7 +6,7 @@ const trainSchema = new mongoose.Schema({
         required: true
     },
     trainNumber: {
-        type: Number,
+        type: String,
         required: true
     },
     journeyDate: {
@@ -17,12 +17,14 @@ const trainSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    acCoaches: [{
-        capacity: Number
-    }],
-    sleeperCoaches: [{
-        capacity: Number
-    }],
+    acCoaches: {
+        type: [String],
+        required: true
+    },
+    sleeperCoaches: {
+        type: [String],
+        required: true
+    },
     source: {
         type: String,
         required: true
@@ -37,6 +39,6 @@ const trainSchema = new mongoose.Schema({
         departureTime: String,
         duration: String
     }]
-});
+}, { collection: 'trains' });
 
 module.exports = mongoose.model('Train', trainSchema)
