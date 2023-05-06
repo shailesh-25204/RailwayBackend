@@ -8,8 +8,8 @@ const XLSX = require('xlsx');
 const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
-const { log } = require('console');
-const train = require('./models/train');
+
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,32 +21,24 @@ const db = mongoose.connection
 const trains = db.collection('trains')
 db.once('open', () => console.log('Connected to Database'))
 
-// const newTrain = new Train({
-//     trainName: 'Rajdhani Express',
-//     trainNumber: '1234',
-//     journeyDate: new Date('2023-05-10'),
-//     journeyTime: '8:00 AM',
-//     acCoaches: ['A1', 'A2', 'A3'],
-//     sleeperCoaches: ['S1', 'S2', 'S3'],
-//     source: 'Delhi',
-//     destination: 'Mumbai',
-//     stops: [
-//         { stationName: 'Jaipur', arrivalTime: '11:00 AM', departureTime: '11:10 AM', duration: '10 minutes' },
-//         { stationName: 'Ahmedabad', arrivalTime: '2:00 PM', departureTime: '2:15 PM', duration: '15 minutes' },
-//         { stationName: 'Surat', arrivalTime: '5:00 PM', departureTime: '5:05 PM', duration: '5 minutes' },
-//         { stationName: 'Vadodara', arrivalTime: '4:00 PM', departureTime: '4:10 PM', duration: '10 minutes' },
-//     ]
-// });
+// trains.insertOne({
+//     trainName: "name",
+//     trainNumber: "12345",
+//     journeyDate: new Date('10-5-23'),
+//     journeyTime: "time",
+//     acCoaches: ['1', '2', '3'],
+//     sleeperCoaches: ['s1', 's2', 's3', 's4'],
+//     source: 'source',
+//     destination: 'deset',
+//     stops: [{
+//         'stationName': 'stname',
+//         'arrivalTime': 'attime',
+//         'departureTime': 'dpttime',
+//         'duration': 'dura'
+//     }]
+// })
 
-// newTrain.save()
-//     .then(res => {
-//         console.log(res)
-//     })
-//     .catch(e => {
-//         console.log(e)
-//     })
-
-
+trains.deleteMany({})
 
 
 app.use(bodyParser.json());
@@ -93,11 +85,6 @@ app.post("/trains", upload.single("file"), (req, res) => {
             // console.log(results);
         })
         .on("end", () => {
-            // Train.insertMany(results).then(res => {
-            //     console.log(res.data)
-            // }).catch(e => {
-            //     console.log(e)
-            // })
             console.log("data insertion ended");
         });
 });
@@ -108,16 +95,47 @@ app.get("/", async (req, res) => {
 });
 
 
+app.get('/api/getTrain', async (req, res) => {
+    const query = {
+        $or: [
+            { source: req.query.source, destination: req.query.destination },
+            { 'stops.stationName': { $in: [req.query.source] }, 'stops.stationName': { $in: [req.query.destination] } }
+        ],
+        // journeyDate: req.query.date
+    }
+    console.log(req.query);
+    let trains = await Train.find(query)
+    console.log(trains);
 
-app.get('/trains', async (req, res) => {
-    let trains = await Train.find()
-    // var json = trains.
-    res.send(trains)
+    const filteredTrains = trains.filter(train => {
+        const sourceIndex = train.stops.findIndex(stop => stop.stationName === req.query.source);
+        const destIndex = train.stops.findIndex(stop => stop.stationName === req.query.destination);
+        console.log(sourceIndex);
+        console.log(destIndex);
+        if (sourceIndex == -1 || destIndex == -1) {
+            return false;
+        }
+        if (sourceIndex !== -1 && destIndex !== -1) {
+            return (sourceIndex < destIndex); // Only include trains where source comes before destination in the stops array
+        }
+        return false;
+    });
+    console.log(filteredTrains);
+    res.send(filteredTrains)
+
+    // res.json(filteredTrains);
+    // console.log(trains);
+    // res.send(trains)
 })
 
-// app.post('/trains', async (req, res) => {
 
+
+// app.get('/trains', async (req, res) => {
+//     let trains = await Train.find()
+//     // var json = trains.
+//     res.send(trains)
 // })
+
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
@@ -154,52 +172,23 @@ async function getAllTrains() {
     }
 }
 
-// const express = require("express");
-// const multer = require("multer");
-// const csv = require("csv-parser");
-// const fs = require("fs");
-// const mongoose = require("mongoose");
+async function findTrainsWithSrcDest(journeyinfo) {
+    console.log('findtrains');
+    let source = journeyinfo.source
+    let dest = journeyinfo.dest
+    const query = {
+        source: { $regex: source, $options: 'i' },
+        destination: { $regex: dest, $options: 'i' }
+        // source: source,
+        // destination: dest
+    };
+    let trains = await Train.find(query)
+        .then(res => {
+            trainSrc = res
+            console.log(res);
+        })
+        .catch(e => {
+            console.log(e);
+        })
+}
 
-// const app = express();
-
-// mongoose.connect("mongodb://localhost/mydatabase", {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
-// const schema = new mongoose.Schema({
-//   name: String,
-//   email: String,
-// });
-
-// const User = mongoose.model("User", schema);
-
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "uploads/");
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.originalname);
-//   },
-// });
-
-// const upload = multer({ storage: storage });
-
-// app.post("/upload", upload.single("file"), (req, res) => {
-//   const results = [];
-
-//   fs.createReadStream(req.file.path)
-//     .pipe(csv())
-//     .on("data", (data) => results.push(data))
-//     .on("end", () => {
-//       User.insertMany(results, (err, docs) => {
-//         if (err) {
-//           console.log(err);
-//           res.status(500).send("Error uploading file");
-//         } else {
-//           console.log(docs);
-//           res.send("File uploaded successfully");
-//         }
-//       });
-//     });
-// });
