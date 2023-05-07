@@ -39,6 +39,6 @@ const trainSchema = new mongoose.Schema({
         departureTime: String,
         duration: String
     }]
-}, { collection: 'trains' });
+}, { collection: 'trains' },   { timestamps: true });
 
 module.exports = mongoose.model('Train', trainSchema)
