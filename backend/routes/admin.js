@@ -27,17 +27,17 @@ router.post("/uploadCSV", upload.single("file"), (req, res) => {
         .pipe(csv())
         .on("data",async (data) => {
             results.push(data)
-            const trainData = results[results.length - 1]
-            console.log(trainData)
-            const trainName = trainData.trainName
-            const trainNumber = trainData.trainNumber
-            const journeyDate = trainData.journeyDate
-            const journeyTime = trainData.journeyTime
-            const acCoaches = trainData.acCoaches
-            const sleeperCoaches = trainData.sleeperCoaches
-            const source = trainData.source
-            const destination = trainData.destination
-            const stopsArray = eval(trainData.stops)
+            let trainData = results[results.length - 1]
+            // console.log(trainData)
+            let trainName = trainData.trainName
+            let trainNumber = trainData.trainNumber
+            let journeyDate = trainData.journeyDate
+            let journeyTime = trainData.journeyTime
+            let acCoaches = eval(trainData.acCoaches)
+            let sleeperCoaches = eval(trainData.sleeperCoaches)
+            let source = trainData.source
+            let destination = trainData.destination
+            let stopsArray = eval(trainData.stops)
             // let arrtemp = trainData.stops
             // arrtemp.slice(1,arrtemp.length -1)
             // stopsArray = arrtemp

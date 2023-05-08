@@ -13,7 +13,8 @@ const db = mongoose.connection
 exports.trainsCollection = db.collection('trains')
 db.once('open', () => console.log('Connected to Database'))
 
-
+// db.collection('trains').deleteMany({})
+// db.collection('bookings').deleteMany({})
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(cors())

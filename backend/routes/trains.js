@@ -11,8 +11,8 @@ router.get('/trains', async (req, res) => {
 
 // Get trains from given Source and Destination
 router.get('/getTrain', async (req, res) => {
-    console.log("hi")
-    console.log(req.query)
+    // console.log("hi")
+    // console.log(req.query)
     const query = {
              'stops.stationName': { $in: [req.query.source] }, 'stops.stationName': { $in: [req.query.destination] } , 
               

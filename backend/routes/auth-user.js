@@ -16,7 +16,7 @@ router.post('/signup', async (req,res) => {
           phone: req.body.phone,
           hashed_password: hashed_password,
     })
-    console.log(newUser)
+    // console.log(newUser)
         const addedUser = await newUser.save()
         res.status(201).json({message: "Sign Up Successful" })
     } catch (err) {
@@ -84,7 +84,7 @@ router.post('/login', async (req,res) => {
 })
 
 function generateAccessToken(payload){
-    return jwt.sign(payload,process.env.JWT_TOKEN_SECRET, {expiresIn: '1h'})
+    return jwt.sign(payload,process.env.JWT_TOKEN_SECRET, {expiresIn: '18h'})
 }
 
 module.exports = router

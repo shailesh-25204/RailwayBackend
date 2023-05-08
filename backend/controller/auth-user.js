@@ -2,8 +2,8 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
 exports.isAuth = async (req,res,next) => {
-    try {
         let userid = undefined
+        console.log((req.headers['authorization']));
         const authHeader = req.headers['authorization']
         const token = authHeader && authHeader.split(' ')[1]
         if(token == null) return res.sendStatus(401)
@@ -20,9 +20,6 @@ exports.isAuth = async (req,res,next) => {
             return res.status(404).json({message: 'Cannot find'})
         }
         req.user = user
-    } catch (error) {
-        res.status(500)
-    }
     
     next()
 }
